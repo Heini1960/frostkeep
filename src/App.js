@@ -21,6 +21,39 @@ const DEMO_ITEMS = [
 ];
 
 const ROW_ID = 1;
+const APP_PASSWORD = "DihwwvdFA1962!";
+
+function LoginScreen({ onLogin }) {
+  const [pw, setPw] = useState("");
+  const [fout, setFout] = useState(false);
+
+  function probeer() {
+    if (pw === APP_PASSWORD) { onLogin(); }
+    else { setFout(true); setTimeout(() => setFout(false), 2000); }
+  }
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#0a0f1e", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'DM Sans','Helvetica Neue',sans-serif", padding:24 }}>
+      <div style={{ background:"#111827", borderRadius:20, padding:"40px 32px", width:"100%", maxWidth:360, border:"1px solid rgba(255,255,255,0.08)", textAlign:"center" }}>
+        <div style={{ width:60, height:60, borderRadius:16, background:"linear-gradient(135deg,#5ac8fa,#007aff)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28, margin:"0 auto 20px" }}>❄️</div>
+        <div style={{ fontSize:22, fontWeight:700, color:"#e8eaf0", marginBottom:6 }}>FrostKeep</div>
+        <div style={{ fontSize:13, color:"#8892a4", marginBottom:32 }}>Voer het wachtwoord in om verder te gaan</div>
+        <input
+          type="password"
+          value={pw}
+          onChange={e => setPw(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && probeer()}
+          placeholder="Wachtwoord"
+          style={{ width:"100%", background:"rgba(255,255,255,0.07)", border:`1px solid ${fout ? "#ff4444" : "rgba(255,255,255,0.1)"}`, borderRadius:10, padding:"12px 14px", color:"#e8eaf0", fontSize:15, outline:"none", boxSizing:"border-box", marginBottom:8, transition:"border-color 0.2s" }}
+        />
+        {fout && <div style={{ color:"#ff4444", fontSize:12, marginBottom:8 }}>Onjuist wachtwoord</div>}
+        <button onClick={probeer} style={{ width:"100%", background:"linear-gradient(135deg,#5ac8fa,#007aff)", border:"none", borderRadius:10, color:"#fff", padding:"13px", fontSize:15, fontWeight:700, cursor:"pointer", marginTop:8 }}>
+          Inloggen
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function getDaysUntilExpiry(d) {
   return Math.ceil((new Date(d) - new Date()) / 86400000);
@@ -56,6 +89,14 @@ async function saveToDB(items) {
 }
 
 export default function App() {
+  const [ingelogd, setIngelogd] = useState(() => sessionStorage.getItem("fk_auth") === "1");
+
+  if (!ingelogd) return <LoginScreen onLogin={() => { sessionStorage.setItem("fk_auth","1"); setIngelogd(true); }} />;
+
+  return <FrostKeep />;
+}
+
+function FrostKeep() {
   const [items, setItems] = useState([]);
   const [ready, setReady] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -363,6 +404,8 @@ export default function App() {
       )}
     </div>
   );
+}
+
 }
 
 function Field({ label, children }) {
