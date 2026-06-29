@@ -26,7 +26,7 @@ jobs:
       - name: Commit & Push Backup
         run: |
           git config user.name "supabase-backup-bot"
-          git config user.email "backup@github.com"
+          git config user.email "hein.reumkens@gmail.com"
           git add backups
           git commit -m "Automated Supabase backup" || echo "No changes"
           git push
