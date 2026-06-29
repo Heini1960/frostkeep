@@ -1,1 +1,32 @@
+name: Supabase Backup
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
 
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Run pg_dump
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          mkdir -p backups
+          pg_dump "$DATABASE_URL" --format=custom --file=backups/supabase_$(date +%F_%H-%M).dump
+
+      - name: Commit & Push Backup
+        run: |
+          git config user.name "supabase-backup-bot"
+          git config user.email "backup@github.com"
+          git add backups
+          git commit -m "Automated Supabase backup" || echo "No changes"
+          git push
